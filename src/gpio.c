@@ -7,19 +7,19 @@ void gpio_output(char port, unsigned int pin) {
   else if(port == 'D') DDRD |= (1 << pin);
 }
 
-void gpio_write(char port, unsigned int value){
+void gpio_write(char port, unsigned int pin, unsigned int value){
   switch(port){
     case 'B':
      if(value) PORTB |= (1 << pin);
      else PORTB &= ~(1 << pin);
     
     case 'C':
-     if(value) PORTB |= (1 << pin);
-     else PORTB &= ~(1 << pin);
+     if(value) PORTC |= (1 << pin);
+     else PORTC &= ~(1 << pin);
     
     case 'D':
-     if(value) PORTB |= (1 << pin);
-     else PORTB &= ~(1 << pin);
+     if(value) PORTD |= (1 << pin);
+     else PORTD &= ~(1 << pin);
   }
 }
 
@@ -31,4 +31,5 @@ void gpio_toggle(char port, unsigned int pin){
      PORTC ^= (1 << pin); break;
     case 'D':
      PORTD ^= (1 << pin); break;
+  }
 }
