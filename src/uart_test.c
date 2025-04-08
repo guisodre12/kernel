@@ -4,7 +4,7 @@
 void uart_init(uint16_t ubrr) {
     UBRR0H = (ubrr >> 8);
     UBRR0L = ubrr;
-    UCSR0B = (1 << TXEN0);  // Enable TX only
+    UCSR0B = (1 << TXEN0);  // TX somente
     UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);  // 8N1
 }
 
@@ -20,7 +20,7 @@ void uart_send_string(const char* str) {
 }
 
 int main(void) {
-    uart_init(103);  // 9600 baud @ 16MHz
+    uart_init(103);  // 9600 baud 16MHz
 
     while (1) {
         uart_send_string("papagoiabazzzzz\n");
