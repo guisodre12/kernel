@@ -1,41 +1,31 @@
-# Nome do projeto (output final)
-TARGET = main
-
 MCU = atmega328p
-
-# Frequência do clock em Hz
 F_CPU = 16000000UL
-
-# Porta serial usada para programar o Arduino
-PORT = /dev/ttyUSB0
-
-# Baudrate usado para programação via avrdude
+CC = avr-gcc
+OBJCOPY = avr-objcopy
+PORT = /dev/ttyUSB0     
 BAUD = 115200
 
-# Compilador e flags
-CC = avr-gcc
-CFLAGS = -mmcu=$(MCU) -Os -DF_CPU=$(F_CPU) -Iinclude
-OBJCPY = avr-objcopy
+# Paths and flags
+CFLAGS = -mmcu=$(MCU) -DF_CPU=$(F_CPU) -Os -Wall -std=c11 -Isrc -Iinclude
+LDFLAGS = -mmcu=$(MCU)
 
-# AVRDude config
-AVRDUDE = avrdude
-PROGRAMMER = arduino
-
-# Arquivos fonte
-SRC = $(wildcard src/*.c)
+# Source files
+//SRC = src/main.c src/gpio.c src/uart.c
+SRC = src/test.c
 OBJ = $(SRC:.c=.o)
+TARGET = main.elf
 
-# Alvos
-all: $(TARGET).hex
+# Build rules
+all: $(TARGET)
 
-$(TARGET).elf: $(SRC)
-	$(CC) $(CFLAGS) -o $@ $^
+$(TARGET): $(OBJ)
+	$(CC) $(LDFLAGS) -o $@ $^
 
-$(TARGET).hex: $(TARGET).elf
-	$(OBJCPY) -O ihex -R .eeprom $< $@
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
-flash: $(TARGET).hex
-	$(AVRDUDE) -c $(PROGRAMMER) -p m328p -P $(PORT) -b $(BAUD) -U flash:w:$(TARGET).hex
+flash: $(TARGET)
+	avrdude -v -patmega328p -carduino -P$(PORT) -b$(BAUD) -D -Uflash:w:$(TARGET):e
 
 clean:
-	rm -f $(TARGET).elf $(TARGET).hex $(OBJ)
+	rm -f src/*.o *.elf
