@@ -5,17 +5,17 @@ OBJCOPY = avr-objcopy
 PORT = /dev/ttyUSB0     
 BAUD = 115200
 
-# Paths and flags
+# Caminho / flags
 CFLAGS = -mmcu=$(MCU) -DF_CPU=$(F_CPU) -Os -Wall -std=c11 -Isrc -Iinclude
 LDFLAGS = -mmcu=$(MCU)
 
-# Source files
+# Souce
 //SRC = src/main.c src/gpio.c src/uart.c
 SRC = src/test.c
 OBJ = $(SRC:.c=.o)
 TARGET = main.elf
 
-# Build rules
+# BUild rules
 all: $(TARGET)
 
 $(TARGET): $(OBJ)
