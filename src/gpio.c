@@ -1,14 +1,29 @@
 #include <avr/io.h>
-#include "gpio.h"
+#include <gpio.h>
+/*
+ *Dedico esse codigo primeiramente ao saudoso Eric Souza do Senai-SG
+ *
+ *-Guilherme Sodre
+ */
 
-void gpio_output(char port, unsigned int pin) {
-  if(port == 'B') DDRB |= (1 << pin);
-  else if(port == 'C') DDRC |= (1 << pin);
-  else if(port == 'D') DDRD |= (1 << pin);
+
+//Torna um pino como output.
+//Tal qual o PinMode no ArduinoIDE.
+void gpio_output(char port, unsigned int pin){
+  switch(port){
+    case 'B':
+     DDRB |= (pin << 1);
+    case 'C':
+     DDRB |= (pin << 1);
+    case 'D':
+     DDRD |= (pin << 1);
+  } 
 }
 
+//Da um valor para uma porta especifica
+//Tal qual como o DigitalWrite ou AnalogWrite no ArduinoIDE.
 void gpio_write(char port, unsigned int pin, unsigned int value){
-  switch(port){
+ switch(port){
     case 'B':
      if(value) PORTB |= (1 << pin);
      else PORTB &= ~(1 << pin);
@@ -23,6 +38,8 @@ void gpio_write(char port, unsigned int pin, unsigned int value){
   }
 }
 
+//Flipa o valor do pino.
+//Uns(1) viram zeros e zeros viram uns.
 void gpio_toggle(char port, unsigned int pin){
   switch(port){
     case 'B':
