@@ -1,31 +1,49 @@
-MCU = atmega328p
-F_CPU = 16000000UL
+# Compiler and tools
 CC = avr-gcc
 OBJCOPY = avr-objcopy
-PORT = /dev/ttyUSB0     
-BAUD = 115200
+MCU = atmega328p
+F_CPU = 16000000UL
+BAUD = 9600
 
-# Caminho / flags
-CFLAGS = -mmcu=$(MCU) -DF_CPU=$(F_CPU) -Os -Wall -std=c11 -Isrc -Iinclude
+# Directories
+SRC_DIR = src
+INC_DIR = include
+BUILD_DIR = build
+
+# Files
+TARGET = main
+SRC = $(wildcard $(SRC_DIR)/*.c)
+OBJ = $(SRC:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
+HEX = $(BUILD_DIR)/$(TARGET).hex
+
+# Flags
+CFLAGS = -mmcu=$(MCU) -DF_CPU=$(F_CPU) -Os -I$(INC_DIR)
 LDFLAGS = -mmcu=$(MCU)
 
-# Souce
-//SRC = src/main.c src/gpio.c src/uart.c
-SRC = src/test.c
-OBJ = $(SRC:.c=.o)
-TARGET = main.elf
+# Default target
+all: $(BUILD_DIR) $(HEX)
 
-# BUild rules
-all: $(TARGET)
+# Build rules
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
-$(TARGET): $(OBJ)
-	$(CC) $(LDFLAGS) -o $@ $^
-
-%.o: %.c
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-flash: $(TARGET)
-	avrdude -v -patmega328p -carduino -P$(PORT) -b$(BAUD) -D -Uflash:w:$(TARGET):e
+$(BUILD_DIR)/$(TARGET).elf: $(OBJ)
+	$(CC) $(LDFLAGS) $(OBJ) -o $@
 
+$(HEX): $(BUILD_DIR)/$(TARGET).elf
+	$(OBJCOPY) -O ihex -R .eeprom $< $@
+
+# Flash to Arduino
+flash: $(HEX)
+	sudo avrdude -F -V -c arduino -p $(MCU) -P /dev/ttyUSB0 -b 115200 -U flash:w:$(HEX):i
+
+# Clean
 clean:
-	rm -f src/*.o *.elf
+	rm -rf $(BUILD_DIR)
+
+.PHONY: all flash clean
+
+
